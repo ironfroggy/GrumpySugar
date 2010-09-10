@@ -10,6 +10,12 @@
         $(document).ready(function() {
             var PLAYGROUND_HEIGHT = 300;
             var PLAYGROUND_WIDTH = 800;
+            var REFRESH_RATE = 30;
+
+            var SPEED = 2;
+            
+            var lowercase_letters = "abcdefghijklmnopqrstuvwxyz";
+
             playground = $("#playground").playground({height: PLAYGROUND_HEIGHT, width: PLAYGROUND_WIDTH})
                 .addGroup("background", {width: PLAYGROUND_WIDTH, height: PLAYGROUND_HEIGHT}).end()
                 .addGroup("actors", {width: PLAYGROUND_WIDTH, height: PLAYGROUND_HEIGHT}).end();
@@ -20,6 +26,11 @@
                 .addSprite('player', {animation: smiley,
                     width: 100, height: 100});
 
+            var player = $('#player');
+            player
+                .data('x', 0)
+                .data('y', 0)
+                ;
 
             $.playground().startGame();
 
@@ -30,9 +41,43 @@
                 });  
             }
 
-            setInterval(function(){
-                $('#player').move(1, 0);
-            }, 50);
+            var key_codes = [];
+            for (var i=0; i<lowercase_letters.length; i++) {
+                key_codes[65 + i] = lowercase_letters[i];
+            }
+            key_codes[37] = 'left';
+            key_codes[38] = 'up';
+            key_codes[39] = 'right';
+            key_codes[40] = 'down';
+
+            $(document).bind("keydown keyup keypress", function(e) {
+                var event = new $.Event(e.type + '_' + key_codes[e.keyCode]);
+                event.keyCode = e.keyCode;
+                $(this).trigger(event);
+            });
+
+            $(document).bind('keyup_undefined', function(e) {
+                console.log(e.type, e.keyCode);
+            });
+
+            function bind_movement_key(direction, dimension, delta) {
+                $(document).bind('keydown_' + direction, function(e) {
+                    player.data(dimension, delta);
+                }).bind('keyup_' + direction, function(e) {
+                    player.data(dimension, 0);
+                });
+            };
+            bind_movement_key('right', 'x', SPEED);
+            bind_movement_key('left', 'x', -SPEED);
+            bind_movement_key('up', 'y', -SPEED);
+            bind_movement_key('down', 'y', SPEED);
+
+            $.playground().registerCallback(function(){
+                player.css({
+                    top: function(i, v) { return parseInt(v) + player.data('y'); },
+                    left: function(i, v) { return parseInt(v) + player.data('x'); }
+                });
+            }, REFRESH_RATE);
         });
         </script>
     </body>
