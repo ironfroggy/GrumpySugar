@@ -59,6 +59,7 @@ function Bomb(container, x, y) {
     this.move(x, y);
 
     this.element.bind('collide', function(e, player) {
+        console.log("blew up player!", this, player);
         if (player.data('alive')) {
             player.data('alive', false);
             $(this).animate({opacity: 0.0}, 200);
@@ -87,6 +88,9 @@ function Bomb(container, x, y) {
                 $(this).remove();
             });
     });
+    if (this.element.collision('#actors,#player').length > 0) {
+        $(element).remove();
+    }
 }
 Bomb._count = 0;
 Bomb.prototype.move = Coin.prototype.move;
