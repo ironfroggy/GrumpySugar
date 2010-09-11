@@ -25,8 +25,8 @@
             var grass_tile = new $.gameQuery.Animation({imageURL: "./grass.png"});
 
             playground = $("#playground").playground({height: PLAYGROUND_HEIGHT, width: PLAYGROUND_WIDTH})
-                .addTilemap("background", [0], grass_tile,
-                    {height: 32, width: 32, sizex: 20, sizey: 10}).end()
+                .addTilemap("background", function(x,y){return true;}, grass_tile,
+                    {height: 32, width: 32, sizex: PLAYGROUND_WIDTH/32, sizey: PLAYGROUND_HEIGHT/32}).end()
                 .addGroup("objects", {width: PLAYGROUND_WIDTH, height: PLAYGROUND_HEIGHT}).end()
                 .addGroup("actors", {width: PLAYGROUND_WIDTH, height: PLAYGROUND_HEIGHT}).end();
 
