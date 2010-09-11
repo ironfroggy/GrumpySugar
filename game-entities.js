@@ -15,6 +15,7 @@ var EntityMixin = {
 
 
 function Coin(container, x, y) {
+    var self = this;
     this.id = 'coin_' + Coin._count;
     Coin._count += 1;
 
@@ -36,35 +37,39 @@ function Coin(container, x, y) {
             var score = $('#score').text();
             $('#score').text(parseInt(score) + 1);
 
-            /* Coin flip animation */
-            var top = t.position().top;
-            var left = t.position().left;
-            var width = t.width();
-            var jump = 30;
-            var fliptime = 500;
-            var rate = 30;
-
-            var i = 0;
-            $.playground().registerCallback(function(){
-                var p = (i * rate) / fliptime;
-                var s = Math.sin(p*3.14)
-
-                t.css('background-size', (100-(100*s))+'% 100%');
-                t.css('left', left + (width/2)*s);
-                t.css('top', top - (jump*s));
-                t.css('opacity', 1.0 - (p/2));
-
-                i++;
-                if (p > 1) {
-                    t.remove();
-                    return true;
-                }
-            }, rate);
+            self.flip();
         }
     });
 }
 Coin._count = 0;
-$.extend(Coin.prototype, EntityMixin);
+$.extend(Coin.prototype, EntityMixin, {
+    flip: function(){
+        var t = this.element;
+        var top = t.position().top;
+        var left = t.position().left;
+        var width = t.width();
+        var jump = 30;
+        var fliptime = 500;
+        var rate = 30;
+
+        var i = 0;
+        $.playground().registerCallback(function(){
+            var p = (i * rate) / fliptime;
+            var s = Math.sin(p*3.14)
+
+            t.css('background-size', (100-(100*s))+'% 100%');
+            t.css('left', left + (width/2)*s);
+            t.css('top', top - (jump*s));
+            t.css('opacity', 1.0 - (p/2));
+
+            i++;
+            if (p > 1) {
+                t.remove();
+                return true;
+            }
+        }, rate);
+    }
+});
 
 
 function Bomb(container, x, y) {
