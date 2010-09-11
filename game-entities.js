@@ -35,9 +35,17 @@ function Coin(container, x, y) {
 
             var score = $('#score').text();
             $('#score').text(parseInt(score) + 1);
-            t.animate({opacity: 0.0}, 500, function(){
-                t.remove();
+            var top = t.position().top;
+            var left = t.position().left;
+            t.animate({top: top-20, left: left+13, opacity: 0.5}, 500, function(){
+                t.animate({top: top, left: left, opacity: 0.0}, 500, function(){t.remove()});
             });
+            
+            var i = 100;
+            $.playground().registerCallback(function(){
+                t.css('background-size', Math.abs(i)+'% 100%');
+                i -= 5;
+            }, 10);
         }
     });
 }
