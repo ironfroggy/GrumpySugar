@@ -1,8 +1,18 @@
-
-
 var animations = {};
 animations.coin = new $.gameQuery.Animation({imageURL: 'coin.png'});
 animations.bomb = new $.gameQuery.Animation({imageURL: 'bomb.png'});
+
+
+/* EntityMixin is a hash of functions used in different entity types. */
+var EntityMixin = {
+    move: function(x, y) {
+        this.element.css({
+            top: function(i, v) { return parseInt(v)+y; },
+            left: function(i, v) { return parseInt(v)+x; }
+        });
+    }
+};
+
 
 function Coin(container, x, y) {
     this.id = 'coin_' + Coin._count;
@@ -32,15 +42,7 @@ function Coin(container, x, y) {
     });
 }
 Coin._count = 0;
-
-
-Coin.prototype.move = function Coin_move(x, y) {
-    this.element.css({
-        top: function(i, v) { return parseInt(v)+y; },
-        left: function(i, v) { return parseInt(v)+x; }
-    });
-};
-
+$.extend(Coin.prototype, EntityMixin);
 
 
 function Bomb(container, x, y) {
@@ -93,4 +95,4 @@ function Bomb(container, x, y) {
     }
 }
 Bomb._count = 0;
-Bomb.prototype.move = Coin.prototype.move;
+$.extend(Bomb.prototype, EntityMixin);
