@@ -61,7 +61,11 @@ function Bomb(container, x, y) {
             $(this).animate({opacity: 0.0}, 200);
             player.animate({opacity: 0.2}, 2000, function(){
                 setTimeout(function(){
-                    $('#objects .sprite').remove();
+                    $('#objects .sprite').each(function(){
+                        $(this).animate({opacity: 0.0},
+                            Math.random()*1000,
+                            function() { $(this).remove(); });
+                    });
                     player.animate({opacity: 1.0}, 2000, function(){
                         $('#score').text('0');
                         player.data('alive', true);
