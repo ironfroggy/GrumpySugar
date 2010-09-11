@@ -25,7 +25,9 @@ function Coin(container, x, y) {
            ,width: 25, height: 25});
     
     this.element = $('#' + this.id);
-    this.element.addClass('coin');
+    this.element
+        .addClass('coin')
+        .data('caught', true);
     
     this.move(x, y);
 
@@ -37,13 +39,19 @@ function Coin(container, x, y) {
             var score = $('#score').text();
             $('#score').text(parseInt(score) + 1);
 
-            self.flip();
+            self.flip(true, function(){
+                self.element.remove();
+            });
         }
+    });
+
+    this.flip(false, function(){
+        self.element.data('caught', false);
     });
 }
 Coin._count = 0;
 $.extend(Coin.prototype, EntityMixin, {
-    flip: function(){
+    flip: function(fade, cb){
         var t = this.element;
         var top = t.position().top;
         var left = t.position().left;
@@ -60,11 +68,15 @@ $.extend(Coin.prototype, EntityMixin, {
             t.css('background-size', (100-(100*s))+'% 100%');
             t.css('left', left + (width/2)*s);
             t.css('top', top - (jump*s));
-            t.css('opacity', 1.0 - (p/2));
+            if (fade) {
+                t.css('opacity', 1.0 - (p/2));
+            }
 
             i++;
             if (p > 1) {
-                t.remove();
+                if (typeof cb === "function") {
+                    cb.call(this);
+                }
                 return true;
             }
         }, rate);
