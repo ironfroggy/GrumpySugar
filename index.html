@@ -14,18 +14,20 @@
             var PLAYGROUND_WIDTH = 800;
             var REFRESH_RATE = 30;
 
-            var SPEED = 3;
+            var SPEED = 5;
             var COIN_RATE = 1000;
             var BOMB_RATE = 3333;
             
             var lowercase_letters = "abcdefghijklmnopqrstuvwxyz";
 
+            var smiley = new $.gameQuery.Animation({imageURL: "./smiley-100px.png"});
+            var grass_tile = new $.gameQuery.Animation({imageURL: "./grass.png"});
+
             playground = $("#playground").playground({height: PLAYGROUND_HEIGHT, width: PLAYGROUND_WIDTH})
-                .addGroup("background", {width: PLAYGROUND_WIDTH, height: PLAYGROUND_HEIGHT}).end()
+                .addTilemap("background", [0], grass_tile,
+                    {height: 32, width: 32, sizex: 20, sizey: 10}).end()
                 .addGroup("objects", {width: PLAYGROUND_WIDTH, height: PLAYGROUND_HEIGHT}).end()
                 .addGroup("actors", {width: PLAYGROUND_WIDTH, height: PLAYGROUND_HEIGHT}).end();
-
-            var smiley = new $.gameQuery.Animation({imageURL: "./smiley-100px.png"});
 
             $('#actors')
                 .addSprite('player', {animation: smiley,
@@ -67,9 +69,15 @@
             key_codes[39] = 'right';
             key_codes[40] = 'down';
 
+            window.keys_down = {};
             $(document).bind("keydown keyup keypress", function(e) {
                 var event = new $.Event(e.type + '_' + key_codes[e.keyCode]);
                 event.keyCode = e.keyCode;
+                if (e.type === "keydown") {
+                    keys_down[key_codes[e.keyCode]] = true;
+                } else if (e.type === "keyup") {
+                    delete keys_down[key_codes[e.keyCode]];
+                }
                 $(this).trigger(event);
             });
 
@@ -77,22 +85,12 @@
                 console.log(e.type, e.keyCode);
             });
 
-            function bind_movement_key(direction, dimension, delta) {
-                $(document).bind('keydown_' + direction, function(e) {
-                    player.data(dimension, delta);
-                }).bind('keyup_' + direction, function(e) {
-                    player.data(dimension, 0);
-                });
-            };
-            bind_movement_key('right', 'x', SPEED);
-            bind_movement_key('left', 'x', -SPEED);
-            bind_movement_key('up', 'y', -SPEED);
-            bind_movement_key('down', 'y', SPEED);
-
             $.playground().registerCallback(function(){
+                var x = (keys_down.right ? SPEED:0 ) + (keys_down.left ? -SPEED:0);
+                var y = (keys_down.down ? SPEED:0) + (keys_down.up ? -SPEED:0);
                 player.css({
-                    top: function(i, v) { return parseInt(v) + player.data('y'); },
-                    left: function(i, v) { return parseInt(v) + player.data('x'); }
+                    top: function(i, v) { return parseInt(v) + y; },
+                    left: function(i, v) { return parseInt(v) + x; }
                 });
 
                 player.collision('#objects,.sprite').trigger('collide', [player]);

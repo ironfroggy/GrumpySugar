@@ -56,11 +56,19 @@ function Bomb(container, x, y) {
     this.move(x, y);
 
     this.element.bind('collide', function(e, player) {
-        player.data('alive', false);
-        $(this).animate({opacity: 0.0}, 200);
-        player.animate({opacity: 0.0}, 2000, function() {
-            player.remove();
-        });
+        if (player.data('alive')) {
+            player.data('alive', false);
+            $(this).animate({opacity: 0.0}, 200);
+            player.animate({opacity: 0.2}, 2000, function(){
+                setTimeout(function(){
+                    $('#objects .sprite').remove();
+                    player.animate({opacity: 1.0}, 2000, function(){
+                        $('#score').text('0');
+                        player.data('alive', true);
+                    });
+                }, 5000);
+            });
+        }
     });
 }
 Bomb._count = 0;
