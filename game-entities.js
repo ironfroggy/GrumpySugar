@@ -85,6 +85,7 @@ function Bomb(container, x, y) {
         $(this).add(element).animate({opacity: 0.0}, 500,
             function() {
                 $(this).remove();
+                element.remove();
             });
     });
     if (this.element.collision('#actors,#player').length > 0) {

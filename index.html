@@ -36,14 +36,14 @@
 
             setInterval(function(){
                 if ($('#objects .sprite.coin').length < COIN_MAX) {
-                    var x = Math.random() * PLAYGROUND_WIDTH;
-                    var y = Math.random() * PLAYGROUND_HEIGHT;
+                    var x = Math.random() * (PLAYGROUND_WIDTH-25);
+                    var y = Math.random() * (PLAYGROUND_HEIGHT-25);
                     new Coin('objects', x, y);
                 }
             }, COIN_RATE);
             setInterval(function(){
-                var x = Math.random() * PLAYGROUND_WIDTH;
-                var y = Math.random() * PLAYGROUND_HEIGHT;
+                var x = Math.random() * (PLAYGROUND_WIDTH-25);
+                var y = Math.random() * (PLAYGROUND_HEIGHT-25);
                 new Bomb('objects', x, y);
             }, BOMB_RATE);
 
