@@ -44,6 +44,7 @@ Coin.prototype.move = function Coin_move(x, y) {
 
 
 function Bomb(container, x, y) {
+    var self = this;
     this.id = 'bomb_' + Bomb._count;
     Bomb._count += 1;
 
@@ -52,7 +53,8 @@ function Bomb(container, x, y) {
             animation: animations.bomb
            ,width: 25, height: 25});
     
-    this.element = $('#' + this.id);
+    var element = this.element = $('#' + this.id);
+    this.element.addClass('bomb');
     
     this.move(x, y);
 
@@ -77,6 +79,13 @@ function Bomb(container, x, y) {
                 }, 5000);
             });
         }
+    });
+
+    this.element.collision('#objects,.sprite').each(function(){
+        $(this).add(element).animate({opacity: 0.0}, 500,
+            function() {
+                $(this).remove();
+            });
     });
 }
 Bomb._count = 0;
