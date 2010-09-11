@@ -35,17 +35,31 @@ function Coin(container, x, y) {
 
             var score = $('#score').text();
             $('#score').text(parseInt(score) + 1);
+
+            /* Coin flip animation */
             var top = t.position().top;
             var left = t.position().left;
-            t.animate({top: top-20, left: left+5}, 200, function(){
-                t.animate({top: top, left: left, opacity: 0.0}, 200, function(){t.remove()});
-            });
-            
-            var i = 100;
+            var width = t.width();
+            var jump = 30;
+            var fliptime = 500;
+            var rate = 30;
+
+            var i = 0;
             $.playground().registerCallback(function(){
-                t.css('background-size', Math.abs(i)+'% 100%');
-                i -= 10;
-            }, 400/20);
+                var p = (i * rate) / fliptime;
+                var s = Math.sin(p*3.14)
+
+                t.css('background-size', (100-(100*s))+'% 100%');
+                t.css('left', left + (width/2)*s);
+                t.css('top', top - (jump*s));
+                t.css('opacity', 1.0 - (p/2));
+
+                i++;
+                if (p > 1) {
+                    t.remove();
+                    return true;
+                }
+            }, rate);
         }
     });
 }

@@ -27,8 +27,8 @@
             playground = $("#playground").playground({height: PLAYGROUND_HEIGHT, width: PLAYGROUND_WIDTH})
                 .addTilemap("background", function(x,y){return true;}, grass_tile,
                     {height: 32, width: 32, sizex: PLAYGROUND_WIDTH/32, sizey: PLAYGROUND_HEIGHT/32}).end()
-                .addGroup("objects", {width: PLAYGROUND_WIDTH, height: PLAYGROUND_HEIGHT}).end()
-                .addGroup("actors", {width: PLAYGROUND_WIDTH, height: PLAYGROUND_HEIGHT}).end();
+                .addGroup("actors", {width: PLAYGROUND_WIDTH, height: PLAYGROUND_HEIGHT}).end()
+                .addGroup("objects", {width: PLAYGROUND_WIDTH, height: PLAYGROUND_HEIGHT}).end();
 
             $('#actors')
                 .addSprite('player', {animation: smiley,
