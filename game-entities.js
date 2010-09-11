@@ -17,12 +17,17 @@ function Coin(container, x, y) {
     
     this.move(x, y);
 
-    this.element.bind('collide', function(e) {
-        var score = $('#score').text();
-        $('#score').text(parseInt(score) + 1);
-        $(this).animate({opacity: 0.0}, 500, function(){
-            $(this).remove();
-        });
+    this.element.bind('collide', function(e, player) {
+        var t = $(this);
+        if (!t.data('caught') && player.data('alive')) {
+            t.data('caught', true);
+
+            var score = $('#score').text();
+            $('#score').text(parseInt(score) + 1);
+            t.animate({opacity: 0.0}, 500, function(){
+                t.remove();
+            });
+        }
     });
 }
 Coin._count = 0;
@@ -51,6 +56,7 @@ function Bomb(container, x, y) {
     this.move(x, y);
 
     this.element.bind('collide', function(e, player) {
+        player.data('alive', false);
         $(this).animate({opacity: 0.0}, 200);
         player.animate({opacity: 0.0}, 2000, function() {
             player.remove();
