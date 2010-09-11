@@ -92,8 +92,12 @@
                 var x = (keys_down.right ? SPEED:0 ) + (keys_down.left ? -SPEED:0);
                 var y = (keys_down.down ? SPEED:0) + (keys_down.up ? -SPEED:0);
                 player.css({
-                    top: function(i, v) { return parseInt(v) + y; },
-                    left: function(i, v) { return parseInt(v) + x; }
+                    top: function(i, v) {
+                        return Math.min(Math.max(0, parseInt(v) + y), PLAYGROUND_HEIGHT-player.height());
+                    },
+                    left: function(i, v) {
+                        return Math.min(Math.max(0, parseInt(v) + x), PLAYGROUND_WIDTH-player.width());
+                    }
                 });
 
                 player.collision('#objects,.sprite').trigger('collide', [player]);
