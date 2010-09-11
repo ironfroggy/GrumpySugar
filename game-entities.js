@@ -37,15 +37,15 @@ function Coin(container, x, y) {
             $('#score').text(parseInt(score) + 1);
             var top = t.position().top;
             var left = t.position().left;
-            t.animate({top: top-20, left: left+13, opacity: 0.5}, 500, function(){
-                t.animate({top: top, left: left, opacity: 0.0}, 500, function(){t.remove()});
+            t.animate({top: top-20, left: left+5}, 200, function(){
+                t.animate({top: top, left: left, opacity: 0.0}, 200, function(){t.remove()});
             });
             
             var i = 100;
             $.playground().registerCallback(function(){
                 t.css('background-size', Math.abs(i)+'% 100%');
-                i -= 5;
-            }, 10);
+                i -= 10;
+            }, 400/20);
         }
     });
 }
