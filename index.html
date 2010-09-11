@@ -17,6 +17,7 @@
             var SPEED = 5;
             var COIN_RATE = 1000;
             var BOMB_RATE = 3333;
+            var COIN_MAX = 50;
             
             var lowercase_letters = "abcdefghijklmnopqrstuvwxyz";
 
@@ -34,9 +35,11 @@
                     width: 100, height: 100});
 
             setInterval(function(){
-                var x = Math.random() * PLAYGROUND_WIDTH;
-                var y = Math.random() * PLAYGROUND_HEIGHT;
-                new Coin('objects', x, y);
+                if ($('#objects .sprite.coin').length < COIN_MAX) {
+                    var x = Math.random() * PLAYGROUND_WIDTH;
+                    var y = Math.random() * PLAYGROUND_HEIGHT;
+                    new Coin('objects', x, y);
+                }
             }, COIN_RATE);
             setInterval(function(){
                 var x = Math.random() * PLAYGROUND_WIDTH;

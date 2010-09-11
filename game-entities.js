@@ -14,6 +14,7 @@ function Coin(container, x, y) {
            ,width: 25, height: 25});
     
     this.element = $('#' + this.id);
+    this.element.addClass('coin');
     
     this.move(x, y);
 
@@ -64,7 +65,10 @@ function Bomb(container, x, y) {
                     $('#objects .sprite').each(function(){
                         $(this).animate({opacity: 0.0},
                             Math.random()*1000,
-                            function() { $(this).remove(); });
+                            function() {
+                                $(this).remove();
+
+                            });
                     });
                     player.animate({opacity: 1.0}, 2000, function(){
                         $('#score').text('0');
