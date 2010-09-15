@@ -21,12 +21,24 @@ $GS.Room = function Room(options) {
     var tile_options = {height: 32, width: 32, sizex: options.width_tiles, sizey: options.height_tiles};
 
     p.addGroup('gs-room')
-        .addTilemap('gs-background', $GS.default_tile_selector, options.floor_tile, tile_options).end()
+        .addTilemap('gs-background', $GS.default_tile_selector, options.floor_tile, tile_options)
+            .click(function(e) {
+                console.log(e);
+            })
+            .end()
         .addGroup('gs-wall', group_options).end()
         .addGroup('gs-thing', group_options).end()
         .addGroup('gs-trigger', group_options).end()
         .addGroup('gs-actor', group_options).end()
         ;
+    p.click(function(e){
+        var tile_x = parseInt(e.offsetX / 32);
+        var tile_y = parseInt(e.offsetY / 32);
+        sprite.walkTo(tile_x, tile_y);
+    });
+
+    this.width = options.width_tiles;
+    this.height = options.height_tiles;
 };
 (function(){
     var sprite_counter = 0;
@@ -38,11 +50,15 @@ $GS.Room = function Room(options) {
 
     $.extend($GS.Room.prototype, {
          addSprite: function(options) {
+            var options = $.extend({}, options, {
+                room: this
+            });
             return new Sprite(options);
          }
     });
 
     $GS.Sprite = function Sprite(options) {
+        this.room = options.room;
         this.element_id = get_sprite_id();
         $('#gs-' + options.group || 'things')
             .addSprite(this.element_id, {animation: options.animation,
@@ -65,8 +81,8 @@ $GS.Room = function Room(options) {
             x = directions_to_offset[direction].x || 0;
             y = directions_to_offset[direction].y || 0;
 
-            this.x += x;
-            this.y += y;
+            this.x = Math.max(0, this.x+x);
+            this.y = Math.max(0, this.y+y);
 
             this._update_position(done);
         }
