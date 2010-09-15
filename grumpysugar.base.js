@@ -181,16 +181,17 @@ $(document).ready(function(){
 
     var default_floor_tile = new $.gameQuery.Animation({imageURL: "default_tile.0.png"});
 
-    function setupScene(width, height) {
+    function setupScene(name) {
+        var room_details = TEST_MAP[name];
         var room = new $GS.Room({
              floor_tile: default_floor_tile
-            ,width_tiles: width
-            ,height_tiles: height
+            ,width_tiles: room_details.width
+            ,height_tiles: room_details.height
         });
 
         return room;
     }
-    setupScene(10, 10);
+    setupScene('start');
 
     $.playground().startGame();
 
