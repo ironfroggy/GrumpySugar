@@ -91,9 +91,12 @@ $GS.Room = function Room(options) {
         }
         ,walkTo: function(x, y) {
             var self = this;
-            var tries = 10;
+            var tries = this.room.width + this.room.height;
             function oneStep() {
-                if (tries < 0) {
+                self._stop();
+                self._walking = true;
+                if (tries <= 1) {
+                    self._walking = false;
                     return;
                 } else {
                     tries--;
@@ -108,17 +111,38 @@ $GS.Room = function Room(options) {
                 } else if (y < self.y) {
                     self.step('u', oneStep);
                 }
+
+                self._walking = false;
             }
-            oneStep();
+            this._afterStep(oneStep);
+        }
+        ,_afterStep: function(cb) {
+            if (cb) {
+                if (this._walking) {
+                    this._after_walking = cb;
+                } else {
+                    cb.call(this)
+                }
+            } else {
+                if (typeof this._after_walking === "function") {
+                    cb = this._after_walking;
+                    this._after_walking = null;
+                    cb.call(this);
+                }
+            }
         }
         ,_stop: function() {
             this.element.clearQueue();
         }
         ,_update_position: function(done) {
+            var self = this;
+            this._afterStep(done);
             this.element.animate({
                  top: 32 * this.y
                 ,left: 32 * this.x
-            }, 500, 'linear', (done||function(){}));
+            }, 500, 'linear', function(){
+                self._afterStep();
+            });
         }
     });
 
