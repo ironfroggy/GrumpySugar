@@ -7,6 +7,14 @@ $.extend($GS, {
      default_tile_selector: function() {
         return ;
     }
+    ,bind: function() {
+        var q = $($GS);
+        q.bind.apply(q, arguments);
+    }
+    ,trigger: function() {
+        var q = $($GS);
+        q.trigger.apply(q, arguments);
+    }
 });
 
 
@@ -39,6 +47,8 @@ $GS.Room = function Room(options) {
 
     this.width = options.width_tiles;
     this.height = options.height_tiles;
+
+    $GS.trigger("newroom", [this]);
 };
 (function(){
     var sprite_counter = 0;
@@ -154,25 +164,35 @@ $.each("Room Sprite".split(' '), function(i, name) {
     }
 });
 
+$GS.bind('newroom', function(e, room) {
+    sprite = room.addSprite({
+         animation: new $.gameQuery.Animation({imageURL: "hero.png"})
+        ,name: 'test_sprite'
+        ,group: 'actor'
+    });
+});
+
 var sprite;
 $(document).ready(function(){
     var playground = $('#playground').playground({
         height: $GS.GAME_HEIGHT, width: $GS.GAME_WIDTH
     });
 
+
     var default_floor_tile = new $.gameQuery.Animation({imageURL: "default_tile.0.png"});
 
-    var test_room = new $GS.Room({
-         floor_tile: default_floor_tile
-        ,width_tiles: 10
-        ,height_tiles: 10
-    });
+    function setupScene(width, height) {
+        var room = new $GS.Room({
+             floor_tile: default_floor_tile
+            ,width_tiles: width
+            ,height_tiles: height
+        });
 
-    sprite = test_room.addSprite({
-         animation: new $.gameQuery.Animation({imageURL: "hero.png"})
-        ,name: 'test_sprite'
-        ,group: 'actor'
-    });
+        return room;
+    }
+    setupScene(10, 10);
 
     $.playground().startGame();
+
+    window.setupScene = setupScene;
 });
