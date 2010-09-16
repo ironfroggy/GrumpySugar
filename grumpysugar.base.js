@@ -33,7 +33,6 @@ $GS.Room = function Room(options) {
             .click(function(e) {
                 console.log(e);
             })
-            .css({top: 32, left: 32})
             .end()
         .addGroup('gs-wall', group_options).end()
         .addGroup('gs-thing', group_options).end()
@@ -76,8 +75,8 @@ $GS.Room = function Room(options) {
             .addSprite(this.element_id, {animation: options.animation,
                 width: 32, height: 32});
         this.element = $('#' + this.element_id);
-        this.x = options.x || 1;
-        this.y = options.y || 1;
+        this.x = options.x || 0;
+        this.y = options.y || 0;
         this._set_position();
     };
 
@@ -95,8 +94,8 @@ $GS.Room = function Room(options) {
             x = directions_to_offset[direction].x || 0;
             y = directions_to_offset[direction].y || 0;
 
-            this.x = Math.min(Math.max(1, this.x+x), this.room.width);
-            this.y = Math.min(Math.max(1, this.y+y), this.room.height);
+            this.x = Math.min(Math.max(0, this.x+x), this.room.width - 1);
+            this.y = Math.min(Math.max(0, this.y+y), this.room.height - 1);
 
             this._update_position(done);
         }
