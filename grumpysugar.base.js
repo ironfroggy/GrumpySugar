@@ -47,6 +47,7 @@ $GS.Room = function Room(options) {
 
     this.width = options.width_tiles;
     this.height = options.height_tiles;
+    this._triggers = options.triggers;
 
     $GS.trigger("newroom", [this]);
 };
@@ -86,6 +87,7 @@ $GS.Room = function Room(options) {
     };
     $.extend($GS.Sprite.prototype, {
          step: function(direction, done) {
+            // Move one step in a specified direction: l r u d
             this._stop();
             var x, y;
             x = directions_to_offset[direction].x || 0;
@@ -102,6 +104,7 @@ $GS.Room = function Room(options) {
         ,walkTo: function(x, y) {
             var self = this;
             var tries = this.room.width + this.room.height;
+
             function oneStep() {
                 self._stop();
                 self._walking = true;
@@ -151,8 +154,29 @@ $GS.Room = function Room(options) {
                  top: 32 * this.y
                 ,left: 32 * this.x
             }, 500, 'linear', function(){
-                self._afterStep();
+                // Check triggers before making another step
+                var stopped = self._check_triggers();
+                if (!stopped) {
+                    self._afterStep();
+                }
             });
+        }
+        ,_check_triggers: function() {
+            var x = this.x, y = this.y;
+            console.log("checking for trigger at ", x, y);
+            var trigger = this.room._triggers[[x,y].join(':')];
+            if (trigger) {
+                trigger = trigger.split(':');
+                var  room = trigger[0]
+                    ,target_x = trigger[1]
+                    ,target_y = trigger[2]
+                    ;
+
+                if (typeof target_x === "undefined") {
+                    // Target is a room only
+                    setupScene(room);
+                }
+            }
         }
     });
 
@@ -187,6 +211,7 @@ $(document).ready(function(){
              floor_tile: default_floor_tile
             ,width_tiles: room_details.width
             ,height_tiles: room_details.height
+            ,triggers: room_details.triggers
         });
 
         return room;
