@@ -18,7 +18,7 @@ $.extend($GS, {
 });
 
 
-$GS.Room = function Room(options) {
+$GS.Room = function Room(details) {
     var p = $.playground();
 
     // Remove any existing room
@@ -26,19 +26,25 @@ $GS.Room = function Room(options) {
 
     // Create the new room
     var group_options = {width: $GS.GAME_WIDTH, height: $GS.GAME_HEIGHT};
-    var tile_options = {height: 32, width: 32, sizex: options.width_tiles, sizey: options.height_tiles};
+    var tile_options = {height: 32, width: 32, sizex: details.width - 1, sizey: details.height - 1};
+
+    this._load_tileset(details.tileset);
 
     p.addGroup('gs-room')
-        .addTilemap('gs-background', $GS.default_tile_selector, options.floor_tile, tile_options).end()
+        .addTilemap('gs-background', $GS.default_tile_selector, this.tileset.floor, tile_options)
+            .css({top: 32, left: 32})
+            .end()
         .addGroup('gs-wall', group_options).end()
         .addGroup('gs-thing', group_options).end()
         .addGroup('gs-trigger', group_options).end()
         .addGroup('gs-actor', group_options).end()
         ;
 
-    this.width = options.width_tiles;
-    this.height = options.height_tiles;
-    this._triggers = options.triggers || {};
+    this.width = details.width;
+    this.height = details.height;
+    this._triggers = details.triggers || {};
+
+    this._add_walls();
 
     $GS.trigger("newroom", [this]);
 };
@@ -51,12 +57,40 @@ $GS.Room = function Room(options) {
     }
 
     $.extend($GS.Room.prototype, {
-         addSprite: function(options) {
+        addSprite: function(options) {
             var options = $.extend({}, options, {
                 room: this
             });
             return new Sprite(options);
-         }
+        } 
+        ,_load_tileset: function(name) {
+            var tileset = this.tileset = {};
+            $.each("floor t tl l bl b br r tr".split(' '), function(i, piece) {
+                tileset[piece] = new $.gameQuery.Animation({imageURL: "cottage/"+piece+".0.png"}); 
+            });
+        }
+        ,_add_walls: function() {
+            // Add walls using the room's tileset
+            var wall = $.playground().find('#gs-wall')
+                ,tileset = this.tileset
+                ;
+            function add_wall_tile(piece, i, x, y) {
+                wall.addSprite('gs-wall-'+piece+i, {animation: tileset[piece], width: 32, height: 32});
+                wall.find('#gs-wall-'+piece+i).css({top: y*32, left: x*32});
+            }
+            add_wall_tile('tl', 0, 0, 0);
+            add_wall_tile('tr', 0, this.width, 0);
+            add_wall_tile('bl', 0, 0, this.height);
+            add_wall_tile('br', 0, this.width, this.height);
+            for (var i=0; i<this.width; i++) {
+                add_wall_tile('t', i, i+1, 0);
+                add_wall_tile('b', i, i+1, this.height);
+            }
+            for (var i=0; i<this.height; i++) {
+                add_wall_tile('l', i, 0, i+1);
+                add_wall_tile('r', i, this.width, i+1);
+            }
+        }
     });
 
     $GS.Sprite = function Sprite(options) {
@@ -206,12 +240,7 @@ $(document).ready(function(){
 
     function setupScene(name) {
         var room_details = TEST_MAP[name];
-        var room = new $GS.Room({
-             floor_tile: default_floor_tile
-            ,width_tiles: room_details.width
-            ,height_tiles: room_details.height
-            ,triggers: room_details.triggers
-        });
+        var room = new $GS.Room(room_details);
 
         return room;
     }
