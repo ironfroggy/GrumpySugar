@@ -29,21 +29,12 @@ $GS.Room = function Room(options) {
     var tile_options = {height: 32, width: 32, sizex: options.width_tiles, sizey: options.height_tiles};
 
     p.addGroup('gs-room')
-        .addTilemap('gs-background', $GS.default_tile_selector, options.floor_tile, tile_options)
-            .click(function(e) {
-                console.log(e);
-            })
-            .end()
+        .addTilemap('gs-background', $GS.default_tile_selector, options.floor_tile, tile_options).end()
         .addGroup('gs-wall', group_options).end()
         .addGroup('gs-thing', group_options).end()
         .addGroup('gs-trigger', group_options).end()
         .addGroup('gs-actor', group_options).end()
         ;
-    p.click(function(e){
-        var tile_x = parseInt(e.offsetX / 32);
-        var tile_y = parseInt(e.offsetY / 32);
-        sprite.walkTo(tile_x, tile_y);
-    });
 
     this.width = options.width_tiles;
     this.height = options.height_tiles;
@@ -75,8 +66,8 @@ $GS.Room = function Room(options) {
             .addSprite(this.element_id, {animation: options.animation,
                 width: 32, height: 32});
         this.element = $('#' + this.element_id);
-        this.x = options.x || 0;
-        this.y = options.y || 0;
+        this.x = parseInt(options.x || 0);
+        this.y = parseInt(options.y || 0);
         this._set_position();
     };
 
@@ -91,8 +82,8 @@ $GS.Room = function Room(options) {
             // Move one step in a specified direction: l r u d
             this._stop();
             var x, y;
-            x = directions_to_offset[direction].x || 0;
-            y = directions_to_offset[direction].y || 0;
+            x = parseInt(directions_to_offset[direction].x || 0);
+            y = parseInt(directions_to_offset[direction].y || 0);
 
             this.x = Math.min(Math.max(0, this.x+x), this.room.width - 1);
             this.y = Math.min(Math.max(0, this.y+y), this.room.height - 1);
@@ -229,6 +220,12 @@ $(document).ready(function(){
          animation: new $.gameQuery.Animation({imageURL: "hero.png"})
         ,name: 'test_sprite'
         ,group: 'actor'
+    });
+
+    $.playground().click(function(e){
+        var tile_x = parseInt(e.offsetX / 32);
+        var tile_y = parseInt(e.offsetY / 32);
+        sprite.walkTo(tile_x, tile_y);
     });
 
     $.playground().startGame();
