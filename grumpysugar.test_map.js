@@ -3,7 +3,7 @@ TEST_MAP = {
         width: 5
         ,height: 5
         ,triggers: {
-            '4:0': 'second'
+            '4:0': 'second:1:2'
         }
     }
     ,'second': {

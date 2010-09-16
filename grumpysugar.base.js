@@ -77,7 +77,7 @@ $GS.Room = function Room(options) {
         this.element = $('#' + this.element_id);
         this.x = options.x || 0;
         this.y = options.y || 0;
-        this._update_position();
+        this._set_position();
     };
 
     var directions_to_offset = {
@@ -94,8 +94,8 @@ $GS.Room = function Room(options) {
             x = directions_to_offset[direction].x || 0;
             y = directions_to_offset[direction].y || 0;
 
-            this.x = Math.max(0, this.x+x);
-            this.y = Math.max(0, this.y+y);
+            this.x = Math.min(Math.max(0, this.x+x), this.room.width - 1);
+            this.y = Math.min(Math.max(0, this.y+y), this.room.height - 1);
 
             this._update_position(done);
         }
@@ -146,7 +146,14 @@ $GS.Room = function Room(options) {
             }
         }
         ,_stop: function() {
+            this._after_walking = null;
             this.element.clearQueue();
+        }
+        ,_set_position: function() {
+            this.element.css({
+                top: 32 * this.y
+                ,left: 32 * this.x
+            });
         }
         ,_update_position: function(done) {
             var self = this;
@@ -164,7 +171,6 @@ $GS.Room = function Room(options) {
         }
         ,_check_triggers: function() {
             var x = this.x, y = this.y;
-            console.log("checking for trigger at ", x, y);
             var trigger = this.room._triggers[[x,y].join(':')];
             if (trigger) {
                 trigger = trigger.split(':');
