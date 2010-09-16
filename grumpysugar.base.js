@@ -47,7 +47,7 @@ $GS.Room = function Room(options) {
 
     this.width = options.width_tiles;
     this.height = options.height_tiles;
-    this._triggers = options.triggers;
+    this._triggers = options.triggers || {};
 
     $GS.trigger("newroom", [this]);
 };
@@ -75,8 +75,9 @@ $GS.Room = function Room(options) {
             .addSprite(this.element_id, {animation: options.animation,
                 width: 32, height: 32});
         this.element = $('#' + this.element_id);
-        this.x = 0;
-        this.y = 0;
+        this.x = options.x || 0;
+        this.y = options.y || 0;
+        this._update_position();
     };
 
     var directions_to_offset = {
@@ -167,15 +168,18 @@ $GS.Room = function Room(options) {
             var trigger = this.room._triggers[[x,y].join(':')];
             if (trigger) {
                 trigger = trigger.split(':');
-                var  room = trigger[0]
+                var  room_id = trigger[0]
                     ,target_x = trigger[1]
                     ,target_y = trigger[2]
                     ;
 
-                if (typeof target_x === "undefined") {
-                    // Target is a room only
-                    setupScene(room);
-                }
+                    var room = setupScene(room_id);
+                    sprite = room.addSprite({
+                         animation: new $.gameQuery.Animation({imageURL: "hero.png"})
+                        ,name: 'test_sprite'
+                        ,group: 'actor'
+                        ,x: target_x, y: target_y
+                    });
             }
         }
     });
@@ -188,13 +192,6 @@ $.each("Room Sprite".split(' '), function(i, name) {
     }
 });
 
-$GS.bind('newroom', function(e, room) {
-    sprite = room.addSprite({
-         animation: new $.gameQuery.Animation({imageURL: "hero.png"})
-        ,name: 'test_sprite'
-        ,group: 'actor'
-    });
-});
 
 var sprite;
 $(document).ready(function(){
@@ -216,7 +213,12 @@ $(document).ready(function(){
 
         return room;
     }
-    setupScene('start');
+    var room = setupScene('start');
+    sprite = room.addSprite({
+         animation: new $.gameQuery.Animation({imageURL: "hero.png"})
+        ,name: 'test_sprite'
+        ,group: 'actor'
+    });
 
     $.playground().startGame();
 
