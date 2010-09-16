@@ -209,6 +209,11 @@ $(document).ready(function(){
 
     var default_floor_tile = new $.gameQuery.Animation({imageURL: "default_tile.0.png"});
 
+    var tileset = {};
+    $.each('t tr r br b bl l tl'.split(' '), function(i, side) {
+        tileset[side] = new $.gameQuery.Animation({imageURL: "stock_cottage/"+side+".0.png"});
+    });
+
     function setupScene(name) {
         var room_details = TEST_MAP[name];
         var room = new $GS.Room({
