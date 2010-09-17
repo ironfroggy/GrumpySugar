@@ -134,12 +134,16 @@ $GS.Room = function Room(details) {
             x = Math.min(Math.max(0, this.x+x), this.room.width);
             y = Math.min(Math.max(0, this.y+y), this.room.height);
 
+            var moved = false;
             if (!this.room.checkForWall(x, y)) {
                 this.x = x;
                 this.y = y;
+                moved = true;
             }
 
             this._update_position();
+
+            return moved;
         }
         ,position: function() {
             return {x: this.x, y: this.y};
@@ -158,18 +162,28 @@ $GS.Room = function Room(details) {
                 this._movement_tries--;
             }
             
-            var x = this.to_x
-                ,y = this.to_y
-                ;
+            var x = this.to_x,
+                y = this.to_y;
 
             if (x > self.x) {
-                self.step('r');
-            } else if (x < self.x) {
-                self.step('l');
-            } else if (y > self.y) {
-                self.step('d');
-            } else if (y < self.y) {
-                self.step('u');
+                if (self.step('r')) {
+                    return;
+                }
+            }
+            if (x < self.x) {
+                if (self.step('l')) {
+                    return;
+                }
+            }
+            if (y > self.y) {
+                if (self.step('d')) {
+                    return;
+                }
+            }
+            if (y < self.y) {
+                if (self.step('u')) {
+                    return;
+                }
             }
         }
         ,_stop: function() {

@@ -10,7 +10,7 @@ TEST_MAP = {
         width: 15
         ,height: 4
         ,triggers: {
-            '0:2': 'start:4:2',
+            '0:2': 'start:4:1',
         }
     }
 }
