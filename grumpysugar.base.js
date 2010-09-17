@@ -1,3 +1,5 @@
+var TICK_LENGTH = 500;
+
 $GS = {
      GAME_HEIGHT: 400
     ,GAME_WIDTH: 600
@@ -97,15 +99,20 @@ $GS.Room = function Room(details) {
     });
 
     $GS.Sprite = function Sprite(options) {
+        var self = this;
         this.room = options.room;
         this.element_id = get_sprite_id();
         $('#gs-' + options.group || 'things')
             .addSprite(this.element_id, {animation: options.animation,
                 width: 32, height: 32});
         this.element = $('#' + this.element_id);
-        this.x = parseInt(options.x || 1);
-        this.y = parseInt(options.y || 1);
+        this.x = this.to_x = parseInt(options.x || 1);
+        this.y = this.to_y = parseInt(options.y || 1);
         this._set_position();
+
+        $.playground().bind('tick', function(){
+            self.tick();
+        });
     };
 
     var directions_to_offset = {
@@ -115,9 +122,8 @@ $GS.Room = function Room(details) {
         ,d: {y: 1}
     };
     $.extend($GS.Sprite.prototype, {
-         step: function(direction, done) {
+         step: function(direction) {
             // Move one step in a specified direction: l r u d
-            this._stop();
             var x, y;
             x = parseInt(directions_to_offset[direction].x || 0);
             y = parseInt(directions_to_offset[direction].y || 0);
@@ -130,57 +136,42 @@ $GS.Room = function Room(details) {
                 this.y = y;
             }
 
-            this._update_position(done);
+            this._update_position();
         }
         ,position: function() {
             return {x: this.x, y: this.y};
         }
         ,walkTo: function(x, y) {
             var self = this;
-            var tries = this.room.width + this.room.height;
-
-            function oneStep() {
-                self._stop();
-                self._walking = true;
-                if (tries <= 1) {
-                    self._walking = false;
-                    return;
-                } else {
-                    tries--;
-                }
-
-                if (x > self.x) {
-                    self.step('r', oneStep);
-                } else if (x < self.x) {
-                    self.step('l', oneStep);
-                } else if (y > self.y) {
-                    self.step('d', oneStep);
-                } else if (y < self.y) {
-                    self.step('u', oneStep);
-                }
-
-                self._walking = false;
-            }
-            this._afterStep(oneStep);
+            this._movement_tries = this.room.width + this.room.height;
+            this.to_x = x;
+            this.to_y = y;
         }
-        ,_afterStep: function(cb) {
-            if (cb) {
-                if (this._walking) {
-                    this._after_walking = cb;
-                } else {
-                    cb.call(this)
-                }
+        ,tick: function () {
+            var self = this;
+            if (this._movement_tries <= 1) {
+                return;
             } else {
-                if (typeof this._after_walking === "function") {
-                    cb = this._after_walking;
-                    this._after_walking = null;
-                    cb.call(this);
-                }
+                this._movement_tries--;
+            }
+            
+            var x = this.to_x
+                ,y = this.to_y
+                ;
+
+            if (x > self.x) {
+                self.step('r');
+            } else if (x < self.x) {
+                self.step('l');
+            } else if (y > self.y) {
+                self.step('d');
+            } else if (y < self.y) {
+                self.step('u');
             }
         }
         ,_stop: function() {
-            this._after_walking = null;
-            this.element.clearQueue();
+            this.to_x = this.x;
+            this.to_y = this.y;
         }
         ,_set_position: function() {
             this.element.css({
@@ -188,17 +179,16 @@ $GS.Room = function Room(details) {
                 ,left: 32 * this.x
             });
         }
-        ,_update_position: function(done) {
+        ,_update_position: function() {
             var self = this;
-            this._afterStep(done);
             this.element.animate({
                  top: 32 * this.y
                 ,left: 32 * this.x
-            }, 500, 'linear', function(){
+            }, TICK_LENGTH, 'linear', function(){
                 // Check triggers before making another step
                 var stopped = self._check_triggers();
-                if (!stopped) {
-                    self._afterStep();
+                if (stopped) {
+                    self._stop();
                 }
             });
         }
@@ -264,6 +254,10 @@ $(document).ready(function(){
         var tile_y = parseInt(e.offsetY / 32);
         sprite.walkTo(tile_x, tile_y);
     });
+
+    setInterval(function(){
+        $.playground().trigger('tick');
+    }, TICK_LENGTH);
 
     $.playground().startGame();
 
