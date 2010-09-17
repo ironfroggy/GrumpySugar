@@ -1,4 +1,4 @@
-var TICK_LENGTH = 500;
+var TICK_LENGTH = 200;
 
 $GS = {
      GAME_HEIGHT: 400
@@ -66,11 +66,12 @@ $GS.Room = function Room(details) {
             return new Sprite(options);
         } 
         ,checkForWall: function(x, y) {
-            return !!(x==0 || y==0 || x==this.width || y==this.height);
+            var on_trigger = !!(this._triggers[x+':'+y]);
+            return !!(x==0 || y==0 || x==this.width || y==this.height) && !on_trigger;
         }
         ,_load_tileset: function(name) {
             var tileset = this.tileset = {};
-            $.each("floor t tl l bl b br r tr".split(' '), function(i, piece) {
+            $.each("door floor t tl l bl b br r tr".split(' '), function(i, piece) {
                 tileset[piece] = new $.gameQuery.Animation({imageURL: "cottage/"+piece+".0.png"}); 
             });
         }
@@ -78,9 +79,11 @@ $GS.Room = function Room(details) {
             // Add walls using the room's tileset
             var wall = $.playground().find('#gs-wall')
                 ,tileset = this.tileset
+                ,triggers = this._triggers
                 ;
             function add_wall_tile(piece, i, x, y) {
-                wall.addSprite('gs-wall-'+piece+i, {animation: tileset[piece], width: 32, height: 32});
+                var animation = tileset[(triggers[x+':'+y]) ? 'door' : piece];
+                wall.addSprite('gs-wall-'+piece+i, {animation: animation, width: 32, height: 32});
                 wall.find('#gs-wall-'+piece+i).css({top: y*32, left: x*32});
             }
             add_wall_tile('tl', 0, 0, 0);
@@ -128,8 +131,8 @@ $GS.Room = function Room(details) {
             x = parseInt(directions_to_offset[direction].x || 0);
             y = parseInt(directions_to_offset[direction].y || 0);
 
-            x = Math.min(Math.max(0, this.x+x), this.room.width - 1);
-            y = Math.min(Math.max(0, this.y+y), this.room.height - 1);
+            x = Math.min(Math.max(0, this.x+x), this.room.width);
+            y = Math.min(Math.max(0, this.y+y), this.room.height);
 
             if (!this.room.checkForWall(x, y)) {
                 this.x = x;
