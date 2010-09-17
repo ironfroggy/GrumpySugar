@@ -63,6 +63,9 @@ $GS.Room = function Room(details) {
             });
             return new Sprite(options);
         } 
+        ,checkForWall: function(x, y) {
+            return !!(x==0 || y==0 || x==this.width || y==this.height);
+        }
         ,_load_tileset: function(name) {
             var tileset = this.tileset = {};
             $.each("floor t tl l bl b br r tr".split(' '), function(i, piece) {
@@ -100,8 +103,8 @@ $GS.Room = function Room(details) {
             .addSprite(this.element_id, {animation: options.animation,
                 width: 32, height: 32});
         this.element = $('#' + this.element_id);
-        this.x = parseInt(options.x || 0);
-        this.y = parseInt(options.y || 0);
+        this.x = parseInt(options.x || 1);
+        this.y = parseInt(options.y || 1);
         this._set_position();
     };
 
@@ -119,8 +122,13 @@ $GS.Room = function Room(details) {
             x = parseInt(directions_to_offset[direction].x || 0);
             y = parseInt(directions_to_offset[direction].y || 0);
 
-            this.x = Math.min(Math.max(0, this.x+x), this.room.width - 1);
-            this.y = Math.min(Math.max(0, this.y+y), this.room.height - 1);
+            x = Math.min(Math.max(0, this.x+x), this.room.width - 1);
+            y = Math.min(Math.max(0, this.y+y), this.room.height - 1);
+
+            if (!this.room.checkForWall(x, y)) {
+                this.x = x;
+                this.y = y;
+            }
 
             this._update_position(done);
         }
