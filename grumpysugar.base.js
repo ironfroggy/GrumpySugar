@@ -266,11 +266,24 @@ $(document).ready(function(){
         ,group: 'actor'
     });
 
-    $.playground().click(function(e){
-        var tile_x = parseInt(e.offsetX / 32);
-        var tile_y = parseInt(e.offsetY / 32);
-        sprite.walkTo(tile_x, tile_y);
-    });
+    (function(){
+        var click_callback = null;
+
+        $.playground().click(function(e){
+            if (typeof click_callback === "function") {
+                click_callback(e);
+                click_callback = null;
+            } else {
+                var tile_x = parseInt(e.offsetX / 32);
+                var tile_y = parseInt(e.offsetY / 32);
+                sprite.walkTo(tile_x, tile_y);
+            }
+        });
+
+        $GS.onNextClick = function(callback) {
+            click_callback = callback;
+        };
+    })();
 
     setInterval(function(){
         $.playground().trigger('tick');
