@@ -12,5 +12,10 @@ TEST_MAP = {
         ,triggers: {
             '0:2': 'start:4:1',
         }
+        ,objects: {
+            '6:2': 'wall',
+            '8:2': 'wall',
+            '10:2': 'wall',
+        }
     }
 }

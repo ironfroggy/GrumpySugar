@@ -3,12 +3,6 @@ var TICK_LENGTH = 200;
 $GS = {
      GAME_HEIGHT: 400
     ,GAME_WIDTH: 600
-    ,onClick_reportTriggerInfo: function(e) {
-        var x = parseInt(e.offsetX / 32);   
-        var y = parseInt(e.offsetY / 32);   
-
-        console.log(room._triggers[x+':'+y]);
-    }
 };
 
 $.extend($GS, {
@@ -51,6 +45,7 @@ $GS.Room = function Room(details) {
     this.width = details.width;
     this.height = details.height;
     this._triggers = details.triggers || {};
+    this._objects = details.objects || {};
 
     this._add_walls();
 
@@ -73,7 +68,8 @@ $GS.Room = function Room(details) {
         } 
         ,checkForWall: function(x, y) {
             var on_trigger = !!(this._triggers[x+':'+y]);
-            return !!(x==0 || y==0 || x==this.width || y==this.height) && !on_trigger;
+            var on_object = !!(this._objects[x+':'+y] == 'wall');
+            return !!(x==0 || y==0 || x==this.width || y==this.height || on_object) && !on_trigger;
         }
         ,_load_tileset: function(name) {
             var tileset = this.tileset = {};
@@ -103,6 +99,17 @@ $GS.Room = function Room(details) {
             for (var i=0; i<this.height; i++) {
                 add_wall_tile('l', i, 0, i+1);
                 add_wall_tile('r', i, this.width, i+1);
+            }
+            var i = this.width*this.height;
+            for (coord in this._objects) {
+                var x = coord.split(':')[0];
+                var y = coord.split(':')[1];
+                var type = this._objects[coord];
+
+                if (type == "wall") {
+                    i++;
+                    add_wall_tile('t', i, x, y);
+                }
             }
         }
     });
