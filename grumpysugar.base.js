@@ -80,6 +80,7 @@ $GS.Room = function Room(details) {
         ,_add_walls: function() {
             // Add walls using the room's tileset
             var wall = $.playground().find('#gs-wall')
+                objects = $.playground().find('#gs-thing')
                 ,tileset = this.tileset
                 ,triggers = this._triggers
                 ;

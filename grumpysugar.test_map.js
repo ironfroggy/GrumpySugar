@@ -16,6 +16,7 @@ TEST_MAP = {
             '6:2': 'wall',
             '8:2': 'wall',
             '10:2': 'wall',
+            '6:1': 'monster',
         }
     }
 }
