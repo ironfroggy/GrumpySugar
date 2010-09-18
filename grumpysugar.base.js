@@ -3,6 +3,12 @@ var TICK_LENGTH = 200;
 $GS = {
      GAME_HEIGHT: 400
     ,GAME_WIDTH: 600
+    ,onClick_reportTriggerInfo: function(e) {
+        var x = parseInt(e.offsetX / 32);   
+        var y = parseInt(e.offsetY / 32);   
+
+        console.log(room._triggers[x+':'+y]);
+    }
 };
 
 $.extend($GS, {
@@ -239,7 +245,7 @@ $.each("Room Sprite".split(' '), function(i, name) {
 });
 
 
-var sprite;
+var sprite, room;
 $(document).ready(function(){
     var playground = $('#playground').playground({
         height: $GS.GAME_HEIGHT, width: $GS.GAME_WIDTH
@@ -259,7 +265,7 @@ $(document).ready(function(){
 
         return room;
     }
-    var room = setupScene('start');
+    room = setupScene('start');
     sprite = room.addSprite({
          animation: new $.gameQuery.Animation({imageURL: "hero.png"})
         ,name: 'test_sprite'
@@ -289,7 +295,7 @@ $(document).ready(function(){
         $.playground().trigger('tick');
     }, TICK_LENGTH);
 
-    $.playground().startGame();
+    $.playground().startGame().css('position', 'relative');
 
     window.setupScene = setupScene;
 });
