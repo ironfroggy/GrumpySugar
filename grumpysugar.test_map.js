@@ -16,7 +16,7 @@ TEST_MAP = {
             '7:2': 'wall,r',
             '7:3': 'wall',
             '8:2': 'wall,r',
-            '8:3': 'door,basement:1:0',
+            '8:3': 'door,basement:1:1',
             '9:2': 'wall,r',
             '9:3': 'wall',
         }
