@@ -18,7 +18,6 @@ $.extend($GS, {
         q.trigger.apply(q, arguments);
     }
     ,setupScene: function(name, target_x, target_y) {
-        console.log("setup scene", name);
         var room_details = TEST_MAP[name];
         var room = new $GS.Room(room_details);
         sprite = room.addSprite({
@@ -303,7 +302,7 @@ $GS.Room = function Room(details) {
             this._last_trigger_x = x;
             this._last_trigger_y = y;
             if (trigger) {
-                return trigger();
+                return trigger(this);
             }
         }
     });

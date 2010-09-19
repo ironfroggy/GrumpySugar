@@ -27,7 +27,7 @@
                 ,self = this
                 ;
 
-            room._triggers[x+':'+y] = function() {
+            room._triggers[x+':'+y] = function(sprite) {
                 var obj_params = obj_string.split(':');
                 var room_id = obj_params[0]
                     ,x = obj_params[1]
