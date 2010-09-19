@@ -79,44 +79,40 @@
         }
         ,tick: function () {
             var self = this;
-            if (this._movement_tries <= 1) {
-                return;
-            } else {
-                this._movement_tries--;
-            }
-            
-            var x = this.to_x,
-                y = this.to_y;
 
-            // If the player needs to move, move them
-            // Otherwise, check this position for triggers ONCE
+            if (!this._moving) {
+                if (this._movement_tries <= 1) {
+                    return;
+                } else {
+                    this._movement_tries--;
+                }
+                
+                var x = this.to_x,
+                    y = this.to_y;
 
-            if (x > self.x) {
-                if (self.step('r')) {
-                    return;
+                // If the player needs to move, move them
+                // Otherwise, check this position for triggers ONCE
+
+                if (x > self.x) {
+                    if (self.step('r')) {
+                        return;
+                    }
                 }
-            }
-            if (x < self.x) {
-                if (self.step('l')) {
-                    return;
+                if (x < self.x) {
+                    if (self.step('l')) {
+                        return;
+                    }
                 }
-            }
-            if (y > self.y) {
-                if (self.step('d')) {
-                    return;
+                if (y > self.y) {
+                    if (self.step('d')) {
+                        return;
+                    }
                 }
-            }
-            if (y < self.y) {
-                if (self.step('u')) {
-                    return;
-                }
-            }
-            
-            if (this._triggers_unchecked()) {
-                var stopped = self._check_triggers();
-                if (stopped) {
-                    self._stop();
-                }
+                if (y < self.y) {
+                    if (self.step('u')) {
+                        return;
+                    }
+                }    
             }
         }
         ,_stop: function() {
@@ -131,11 +127,19 @@
         }
         ,_update_position: function() {
             var self = this;
+            this._moving = true;
             this.element.animate({
                  top: 32 * this.y
                 ,left: 32 * this.x
             }, TICK_LENGTH, 'linear', function(){
                 // Check triggers before making another step
+                self._moving = false;
+                if (self._triggers_unchecked()) {
+                    var stopped = self._check_triggers();
+                    if (stopped) {
+                        self._stop();
+                    }
+                }
             });
         }
         ,_triggers_unchecked: function() {
