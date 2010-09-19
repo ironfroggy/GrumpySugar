@@ -10,18 +10,12 @@
     $GS.Sprite = function Sprite(options) {
         var self = this;
         this.room = options.room;
-        this.element_id = get_sprite_id();
-        $('#gs-' + options.group || 'things')
-            .addSprite(this.element_id, {animation: options.animation,
-                width: 32, height: 32});
-        this.element = $('#' + this.element_id);
+        this._group = options.group;
+        this._animation = options.animation;
         this.x = this.to_x = parseInt(options.x || 1);
         this.y = this.to_y = parseInt(options.y || 1);
-        this._set_position();
 
-        $.playground().bind('tick', function(){
-            self.tick();
-        });
+        this.attach(this.room, this.x, this.y);
     };
 
     var directions_to_offset = {
@@ -31,7 +25,29 @@
         ,d: {y: 1}
     };
     $.extend($GS.Sprite.prototype, {
-         step: function(direction) {
+         attach: function(room, x, y) {
+            var self = this;
+
+            this.element_id = get_sprite_id();
+            $('#gs-' + this._group || 'things')
+                .addSprite(this.element_id, {animation: this._animation,
+                    width: 32, height: 32});
+
+            this.element = $('#' + this.element_id);
+
+            this.room = room;
+            this.x = parseInt(x);
+            this.y = parseInt(y);
+
+            this.to_x = this.x;
+            this.to_y = this.y;
+            this._set_position();
+            $.playground().bind('tick', function(){
+                self.tick();
+            });
+         }
+
+        ,step: function(direction) {
             // Move one step in a specified direction: l r u d
             var x, y;
             x = parseInt(directions_to_offset[direction].x || 0);
@@ -40,6 +56,7 @@
             x = Math.min(Math.max(0, this.x+x), this.room.width);
             y = Math.min(Math.max(0, this.y+y), this.room.height);
 
+            
             var moved = false;
             if (!this.room.checkForWall(x, y)) {
                 this.x = x;

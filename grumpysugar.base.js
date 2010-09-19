@@ -3,6 +3,8 @@ var TICK_LENGTH = 200;
 $GS = {
      GAME_HEIGHT: 400
     ,GAME_WIDTH: 600
+
+    ,player: null
 };
 
 $.extend($GS, {
@@ -20,12 +22,18 @@ $.extend($GS, {
     ,setupScene: function(name, target_x, target_y) {
         var room_details = TEST_MAP[name];
         var room = new $GS.Room(room_details);
-        sprite = room.addSprite({
-             animation: new $.gameQuery.Animation({imageURL: "hero.png"})
-            ,name: 'test_sprite'
-            ,group: 'actor'
-            ,x: target_x, y: target_y
-        });
+
+        if ($GS.player === null) {
+            $GS.player = new $GS.Sprite({
+                 animation: new $.gameQuery.Animation({imageURL: "hero.png"})
+                ,name: 'test_sprite'
+                ,group: 'actor'
+                ,x: target_x, y: target_y
+                ,room: room
+            });
+        } else {
+            $GS.player.attach(room, target_x, target_y);
+        }
     }
 });
 
@@ -176,7 +184,7 @@ $GS.Room = function Room(details) {
 })();
 
 
-var sprite, room;
+var room;
 $(document).ready(function(){
     var playground = $('#playground').playground({
         height: $GS.GAME_HEIGHT, width: $GS.GAME_WIDTH
@@ -202,7 +210,7 @@ $(document).ready(function(){
             } else {
                 var tile_x = parseInt(e.offsetX / 32);
                 var tile_y = parseInt(e.offsetY / 32);
-                sprite.walkTo(tile_x, tile_y);
+                $GS.player.walkTo(tile_x, tile_y);
             }
         });
 
