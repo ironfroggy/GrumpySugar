@@ -68,7 +68,7 @@ $GS.Room = function Room(details) {
         } 
         ,checkForWall: function(x, y) {
             var on_trigger = !!(this._triggers[x+':'+y]);
-            var on_object = !!(this._objects[x+':'+y] == 'wall');
+            var on_object = !!((this._objects[x+':'+y] || '').slice(0, 4) == 'wall');
             return !!(x==0 || y==0 || x==this.width || y==this.height || on_object) && !on_trigger;
         }
         ,_load_tileset: function(name) {
@@ -93,11 +93,11 @@ $GS.Room = function Room(details) {
             add_wall_tile('tr', 0, this.width, 0);
             add_wall_tile('bl', 0, 0, this.height);
             add_wall_tile('br', 0, this.width, this.height);
-            for (var i=0; i<this.width; i++) {
+            for (var i=0; i<this.width-1; i++) {
                 add_wall_tile('t', i, i+1, 0);
                 add_wall_tile('b', i, i+1, this.height);
             }
-            for (var i=0; i<this.height; i++) {
+            for (var i=0; i<this.height-1; i++) {
                 add_wall_tile('l', i, 0, i+1);
                 add_wall_tile('r', i, this.width, i+1);
             }
@@ -105,11 +105,14 @@ $GS.Room = function Room(details) {
             for (coord in this._objects) {
                 var x = coord.split(':')[0];
                 var y = coord.split(':')[1];
-                var type = this._objects[coord];
+                var type = this._objects[coord].split(',')[0];
+                var tile = this._objects[coord].split(',')[1];
 
+                i++;
                 if (type == "wall") {
-                    i++;
-                    add_wall_tile('t', i, x, y);
+                    add_wall_tile(tile || 'b', i, x, y);
+                } else if (type == "monster") {
+                    //
                 }
             }
         }
