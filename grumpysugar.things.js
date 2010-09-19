@@ -43,6 +43,17 @@
         imageURL: function(obj_string) {
             return "thing.png";
         }
+        ,setup: function(obj_string) {
+            var room = this.data('room')
+                ,x = this.data('x')
+                ,y = this.data('y')
+                ,self = this
+                ;
+
+            room._triggers[x+':'+y] = function() {
+                self.remove();
+            };
+        }
     });
 
 })();
