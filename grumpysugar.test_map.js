@@ -30,5 +30,8 @@ TEST_MAP = {
         ,triggers: {
             '1:0': 'second:8:4'
         }
+        ,objects: {
+            '3:3': 'thing'
+        }
     }
 }

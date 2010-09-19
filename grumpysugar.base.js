@@ -111,8 +111,12 @@ $GS.Room = function Room(details) {
                 i++;
                 if (type == "wall") {
                     add_wall_tile(tile || 'b', i, x, y);
-                } else if (type == "monster") {
-                    //
+                } else if (type == "thing") {
+                    var things = $.playground().find('#gs-thing');
+                    things.addSprite('gs-thing-'+i, {
+                        animation: new $.gameQuery.Animation({imageURL: "thing.png"})
+                        ,width: 32, height: 32});
+                    things.find('#gs-thing-'+i).css({top: y*32, left: x*32});
                 }
             }
         }
