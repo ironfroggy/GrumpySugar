@@ -17,7 +17,16 @@ $.extend($GS, {
         var q = $($GS);
         q.trigger.apply(q, arguments);
     }
-    
+    ,setupScene: function(name, target_x, target_y) {
+        var room_details = TEST_MAP[name];
+        var room = new $GS.Room(room_details);
+        sprite = room.addSprite({
+             animation: new $.gameQuery.Animation({imageURL: "hero.png"})
+            ,name: 'test_sprite'
+            ,group: 'actor'
+            ,x: target_x, y: target_y
+        });
+    }
 });
 
 (function(){
@@ -46,7 +55,10 @@ $.extend($GS, {
     // x:
     // y:
     $GS.setupThing = function(type_code, obj_string) {
-        thing_types[type_code].call(this, obj_string);
+        (thing_types[type_code].setup || function(){}).call(this, obj_string);
+    };
+    $GS.getThingImageURL = function(type_code, obj_string) {
+        return thing_types[type_code].imageURL.call(this, obj_string);
     };
 
 })();
@@ -136,23 +148,31 @@ $GS.Room = function Room(details) {
                 add_wall_tile('l', i, 0, i+1);
                 add_wall_tile('r', i, this.width, i+1);
             }
+
             var i = this.width*this.height;
+            var things = $.playground().find('#gs-thing');
             for (coord in this._objects) {
                 var x = coord.split(':')[0];
                 var y = coord.split(':')[1];
                 var type = this._objects[coord].split(',')[0];
                 var tile = this._objects[coord].split(',')[1];
+                var obj_string = this._objects[coord].slice(type.length + 1, this._objects[coord].length);
+                console.log(this._objects[coord], type, obj_string);
 
                 i++;
-                if (type == "wall") {
-                    add_wall_tile(tile || 'b', i, x, y);
-                } else if (type == "thing") {
-                    var things = $.playground().find('#gs-thing');
-                    things.addSprite('gs-thing-'+i, {
-                        animation: new $.gameQuery.Animation({imageURL: "thing.png"})
-                        ,width: 32, height: 32});
-                    things.find('#gs-thing-'+i).css({top: y*32, left: x*32});
-                }
+
+                things.addSprite('gs-thing-'+i, {
+                    animation: new $.gameQuery.Animation({imageURL: $GS.getThingImageURL(type, obj_string)})
+                    ,width: 32, height: 32});
+                var thing = things.find('#gs-thing-'+i).css({top: y*32, left: x*32});
+                thing
+                    .data('room', this)
+                    .data('x', x)
+                    .data('y', y)
+                    .data('thing_type', type)
+                    ;
+                $GS.setupThing.call(thing, type, obj_string);
+
             }
             for (coord in this._triggers) {
                 walls[coord] = false;
@@ -272,19 +292,7 @@ $GS.Room = function Room(details) {
             var x = this.x, y = this.y;
             var trigger = this.room._triggers[[x,y].join(':')];
             if (trigger) {
-                trigger = trigger.split(':');
-                var  room_id = trigger[0]
-                    ,target_x = trigger[1]
-                    ,target_y = trigger[2]
-                    ;
-
-                    var room = setupScene(room_id);
-                    sprite = room.addSprite({
-                         animation: new $.gameQuery.Animation({imageURL: "hero.png"})
-                        ,name: 'test_sprite'
-                        ,group: 'actor'
-                        ,x: target_x, y: target_y
-                    });
+                trigger();
             }
         }
     });
@@ -312,18 +320,7 @@ $(document).ready(function(){
         tileset[side] = new $.gameQuery.Animation({imageURL: "stock_cottage/"+side+".0.png"});
     });
 
-    function setupScene(name) {
-        var room_details = TEST_MAP[name];
-        var room = new $GS.Room(room_details);
-
-        return room;
-    }
-    room = setupScene('start');
-    sprite = room.addSprite({
-         animation: new $.gameQuery.Animation({imageURL: "hero.png"})
-        ,name: 'test_sprite'
-        ,group: 'actor'
-    });
+    $GS.setupScene('start', 1, 1);
 
     (function(){
         var click_callback = null;
@@ -349,6 +346,4 @@ $(document).ready(function(){
     }, TICK_LENGTH);
 
     $.playground().startGame().css('position', 'relative');
-
-    window.setupScene = setupScene;
 });
