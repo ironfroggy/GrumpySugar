@@ -17,8 +17,39 @@ $.extend($GS, {
         var q = $($GS);
         q.trigger.apply(q, arguments);
     }
+    
 });
 
+(function(){
+    // Here we want to allow registration of different kinds of "things"
+    // Each "thing" appears on a tile defined by the objects property of the room
+    // description. The first part of the object string is the type and these are
+    // registered here. Currently planned types are 'wall', 'decor', and 'item'
+    // Each thing is registered so that it can setup an instance of this kind of
+    // thing when the room is created. For example, the 'wall' type will modify
+    // the wall map so the player can't run into it. The 'decor' type will grab
+    // a sprite code from the object string and create the correct animation.
+    // The 'item' type will attach an event handler so it knows when the user
+    // gets to it, at which point it will remove the item from the room and add it
+    // to the users inventory. Standard thing types are defined in grumpysugar.things.js
+
+    var thing_types = {};
+
+    $GS.registerThingType = function(type_code, handler) {
+        thing_types[type_code] = handler; 
+    };
+    
+    // This is called in context of the sprite created, after the pre-initialization
+    // Sprites are given the following data attributes:
+    //
+    // room:    The room the sprite is created in
+    // x:
+    // y:
+    $GS.setupThing = function(type_code, obj_string) {
+        thing_types[type_code].call(this, obj_string);
+    };
+
+})();
 
 $GS.Room = function Room(details) {
     var p = $.playground();
@@ -46,6 +77,7 @@ $GS.Room = function Room(details) {
     this.height = details.height;
     this._triggers = details.triggers || {};
     this._objects = details.objects || {};
+    this._walls = {};
 
     this._add_walls();
 
@@ -67,9 +99,10 @@ $GS.Room = function Room(details) {
             return new Sprite(options);
         } 
         ,checkForWall: function(x, y) {
-            var on_trigger = !!(this._triggers[x+':'+y]);
-            var on_object = !!((this._objects[x+':'+y] || '').slice(0, 4) == 'wall');
-            return !!(x==0 || y==0 || x==this.width || y==this.height || on_object) && !on_trigger;
+            return !!this._walls[x+':'+y];
+        }
+        ,setWall: function(x, y, wall) {
+            this._walls[x+':'+y] = wall;
         }
         ,_load_tileset: function(name) {
             var tileset = this.tileset = {};
@@ -83,11 +116,13 @@ $GS.Room = function Room(details) {
                 objects = $.playground().find('#gs-thing')
                 ,tileset = this.tileset
                 ,triggers = this._triggers
+                ,walls = this._walls;
                 ;
             function add_wall_tile(piece, i, x, y) {
                 var animation = tileset[(triggers[x+':'+y]) ? 'door' : piece];
                 wall.addSprite('gs-wall-'+piece+i, {animation: animation, width: 32, height: 32});
                 wall.find('#gs-wall-'+piece+i).css({top: y*32, left: x*32});
+                walls[x+':'+y] = true;
             }
             add_wall_tile('tl', 0, 0, 0);
             add_wall_tile('tr', 0, this.width, 0);
@@ -118,6 +153,9 @@ $GS.Room = function Room(details) {
                         ,width: 32, height: 32});
                     things.find('#gs-thing-'+i).css({top: y*32, left: x*32});
                 }
+            }
+            for (coord in this._triggers) {
+                walls[coord] = false;
             }
         }
     });
