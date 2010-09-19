@@ -14,6 +14,7 @@
         this._animation = options.animation;
         this.x = this.to_x = parseInt(options.x || 1);
         this.y = this.to_y = parseInt(options.y || 1);
+        this.items = {};
 
         this.attach(this.room, this.x, this.y);
     };
@@ -46,6 +47,12 @@
                 self.tick();
             });
          }
+        ,addItem: function(item_name) {
+            if (!this.items[item_name]) {
+                this.items[item_name] = 0;
+            }
+            this.items[item_name] += 1;
+        }
 
         ,step: function(direction) {
             // Move one step in a specified direction: l r u d
@@ -78,6 +85,9 @@
             this.to_y = y;
         }
         ,tick: function () {
+            this._check_movement();
+        }
+        ,_check_movement: function() {
             var self = this;
 
             if (!this._moving) {
@@ -140,6 +150,7 @@
                         self._stop();
                     }
                 }
+                self._check_movement();
             });
         }
         ,_triggers_unchecked: function() {

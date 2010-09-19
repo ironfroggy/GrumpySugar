@@ -51,7 +51,8 @@
                 ,self = this
                 ;
 
-            room._triggers[x+':'+y] = function() {
+            room._triggers[x+':'+y] = function(sprite) {
+                sprite.addItem('treasure');
                 self.remove();
             };
         }
