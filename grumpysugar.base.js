@@ -18,6 +18,7 @@ $.extend($GS, {
         q.trigger.apply(q, arguments);
     }
     ,setupScene: function(name, target_x, target_y) {
+        console.log("setup scene", name);
         var room_details = TEST_MAP[name];
         var room = new $GS.Room(room_details);
         sprite = room.addSprite({
@@ -157,7 +158,6 @@ $GS.Room = function Room(details) {
                 var type = this._objects[coord].split(',')[0];
                 var tile = this._objects[coord].split(',')[1];
                 var obj_string = this._objects[coord].slice(type.length + 1, this._objects[coord].length);
-                console.log(this._objects[coord], type, obj_string);
 
                 i++;
 
@@ -244,6 +244,9 @@ $GS.Room = function Room(details) {
             var x = this.to_x,
                 y = this.to_y;
 
+            // If the player needs to move, move them
+            // Otherwise, check this position for triggers ONCE
+
             if (x > self.x) {
                 if (self.step('r')) {
                     return;
@@ -264,6 +267,13 @@ $GS.Room = function Room(details) {
                     return;
                 }
             }
+            
+            if (this._triggers_unchecked()) {
+                var stopped = self._check_triggers();
+                if (stopped) {
+                    self._stop();
+                }
+            }
         }
         ,_stop: function() {
             this.to_x = this.x;
@@ -282,17 +292,18 @@ $GS.Room = function Room(details) {
                 ,left: 32 * this.x
             }, TICK_LENGTH, 'linear', function(){
                 // Check triggers before making another step
-                var stopped = self._check_triggers();
-                if (stopped) {
-                    self._stop();
-                }
             });
+        }
+        ,_triggers_unchecked: function() {
+            return (this.x != this._last_trigger_x || this.y != this._last_trigger_y);
         }
         ,_check_triggers: function() {
             var x = this.x, y = this.y;
             var trigger = this.room._triggers[[x,y].join(':')];
+            this._last_trigger_x = x;
+            this._last_trigger_y = y;
             if (trigger) {
-                trigger();
+                return trigger();
             }
         }
     });

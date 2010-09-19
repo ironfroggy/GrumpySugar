@@ -35,6 +35,7 @@
                     ;
 
                 $GS.setupScene(room_id, x, y);
+                return true;
             }
         }
     });
