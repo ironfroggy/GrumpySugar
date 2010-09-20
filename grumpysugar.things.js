@@ -62,12 +62,29 @@
         imageURL: function(obj_string) {
             var parts = obj_string.split(':')
                 ,decor_type = parts[0]
+                ,src = parts[1]
+                ,offset = parts[2]
                 ,remain = obj_string.slice(decor_type.length+1, obj_string.length)
                 ;
 
             if (decor_type == 'src') {
-                console.log(remain);
-                return remain;
+                return src;
+            }
+        }
+        ,setup: function(obj_string) {
+            var parts = obj_string.split(':')
+                ,decor_type = parts[0]
+                ,src = parts[1]
+                ,offset_x = parts[2]
+                ,offset_y = parts[3]
+                ,remain = obj_string.slice(decor_type.length+1, obj_string.length)
+                ;
+
+            if (offset_x) {
+                $(this).css({
+                    top: parseInt($(this).css('top')) + parseInt(offset_y||0),
+                    left: parseInt($(this).css('left')) + parseInt(offset_x)
+                });
             }
         }
     });
