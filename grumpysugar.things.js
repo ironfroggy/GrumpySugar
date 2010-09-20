@@ -58,4 +58,18 @@
         }
     });
 
+    $GS.registerThingType('decor', {
+        imageURL: function(obj_string) {
+            var parts = obj_string.split(':')
+                ,decor_type = parts[0]
+                ,remain = obj_string.slice(decor_type.length+1, obj_string.length)
+                ;
+
+            if (decor_type == 'src') {
+                console.log(remain);
+                return remain;
+            }
+        }
+    });
+
 })();

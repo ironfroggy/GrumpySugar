@@ -4,6 +4,7 @@ TEST_MAP = {
         ,height: 5
         ,objects: {
             '5:1': 'door,second:1:2'
+            ,'3:0': 'decor,src:painting.png'
         }
     }
     ,'second': {
@@ -19,6 +20,9 @@ TEST_MAP = {
             '8:3': 'door,basement:1:1',
             '9:2': 'wall,r',
             '9:3': 'wall',
+            '3:0': 'decor,src:painting.png',
+            '7:0': 'decor,src:painting.png',
+            '11:0': 'decor,src:painting.png'
         }
     }
     ,'basement': {
