@@ -1,3 +1,18 @@
+/* GrumpySugar
+ * Copyright 2010 Calvin Spealman / Pantechnoco
+ * /
+
+/* Sprite
+ *
+ * Represents an object in a room. Can be the player, a wall, deocration
+ * treasure, enemies, etc.
+ *
+ * Options
+ *  - room: The room the sprite appears in
+ *  - x, y: The x and y coordinates in the room, in tiles
+ *  - 
+ */
+
 (function(){
 
     var sprite_counter = 0;
@@ -6,6 +21,56 @@
         sprite_counter++;
         return 'gs-sprite-' + id;
     }
+
+    /* SpriteAnimationFactory provides some things for different sprite types.
+     * it provides the mechanism by which a sprite loads its animation,
+     * which is given to the get_animation() method as a graphic code.
+     * The graphic code specifies graphics by tileset and tilename.
+     * For example, cave:wall-tr-inner loads the top-right, inner tile
+     * for walls in the cave tileset. The tileset can be ommited, and the
+     * room will be used, like :wall-t-inner
+     */
+    function SpriteAnimationFactory() {
+        this.__animations = {}; 
+    };
+    SpriteAnimationFactory.prototype.get_animation = function(graphic_code) {
+        var code_parts = graphic_code.split(':');
+        var tileset = code_parts[0];
+        var tileid = code_parts[1];
+        
+        var anims = this.__animations;
+        if (!anims[tileset]) {
+            throw "AssetFailure: Missing tileset '"+ tileset + "'";
+        } else if (!anims[tileset][tileid]) {
+            throw "AssetFailure: Missing tile '" + tileid +"' from tileset '"+ tileset + "'";
+        } else {
+            var animation = anims[tileset][tileid];
+            return animation;
+        }
+    };
+    
+    /* Tilesets are loaded from a directory containing a tileset.json manifest
+     *
+     * The Manifest maps tile IDs to filenames in the same directory.
+     */
+    SpriteAnimationFactory.prototype.load_tileset = function(tileset_name, callback) {
+        var anims = this.__animations;
+        var url = "./assets/tileset/" + tileset_name + "/tileset.json";
+        $.ajax({
+            url: url,
+            success: function(raw_data) {
+                var data = $.parseJSON(raw_data);
+                var tileset = anims[tileset_name] = {};
+                for (tile_id in data) {
+                    var url = "./assets/tileset/" + data[tile_id];
+                    tileset[tile_id] = new $.gameQuery.Animation({
+                        imageURL: url
+                    });
+                }
+            }
+        });
+    };
+    $GS.SAF = new SpriteAnimationFactory();
 
     $GS.Sprite = function Sprite(options) {
         var self = this;
