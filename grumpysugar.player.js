@@ -34,9 +34,16 @@
         this.__animations = {}; 
     };
     SpriteAnimationFactory.prototype.get_animation = function(graphic_code) {
-        var code_parts = graphic_code.split(':');
-        var tileset = code_parts[0];
-        var tileid = code_parts[1];
+        var code_parts, tileset, tileid, direction;
+
+        if (arguments.length == 1) {
+            code_parts = graphic_code.split(':');
+        } else {
+            code_parts = arguments;
+        }
+        tileset = code_parts[0];
+        tileid = code_parts[1];
+        direction = code_parts[2] || 'a';
         
         var anims = this.__animations;
         if (!anims[tileset]) {
@@ -44,9 +51,29 @@
         } else if (!anims[tileset][tileid]) {
             throw "AssetFailure: Missing tile '" + tileid +"' from tileset '"+ tileset + "'";
         } else {
-            var animation = anims[tileset][tileid];
-            return animation;
+            var directions = anims[tileset][tileid];
+            var anim = (directions[direction] || directions['a'])[0];
+            if (!anim) {
+                for (direction in directions) {
+                    anim = directions[direction];
+                    break;
+                }
+            }
+            return anim;
         }
+    };
+    SpriteAnimationFactory.prototype._set_animation = function(tileset, tile_id, direction, url) {
+        var anims = this.__animations;
+        if (!anims[tileset]) {
+            anims[tileset] = {};
+        }
+        if (!anims[tileset][tile_id]) {
+            anims[tileset][tile_id] = {};
+        }
+        if (!anims[tileset][tile_id][direction]) {
+            anims[tileset][tile_id][direction] = [];
+        }
+        anims[tileset][tile_id][direction].push(new $.gameQuery.Animation({imageURL: url}));
     };
     
     /* Tilesets are loaded from a directory containing a tileset.json manifest
@@ -54,6 +81,7 @@
      * The Manifest maps tile IDs to filenames in the same directory.
      */
     SpriteAnimationFactory.prototype.load_tileset = function(tileset_name, callback) {
+        var self = this;
         var anims = this.__animations;
         var url = "./assets/tileset/" + tileset_name + "/tileset.json";
         $.ajax({
@@ -62,10 +90,10 @@
                 var data = $.parseJSON(raw_data);
                 var tileset = anims[tileset_name] = {};
                 for (tile_id in data) {
-                    var url = "./assets/tileset/" + data[tile_id];
-                    tileset[tile_id] = new $.gameQuery.Animation({
-                        imageURL: url
-                    });
+                    for (direction in data[tile_id]) {
+                        var url = "./assets/tileset/" + data[tile_id];
+                        self._set_animation(tileset_name, tile_id, direction, url);
+                    }
                 }
             }
         });
