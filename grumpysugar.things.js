@@ -81,10 +81,15 @@
                 ;
 
             if (offset_x) {
+                offset_y = parseInt(offset_y||0);
+                offset_x = parseInt(offset_x||0);
+
+                console.debug($(this).position().top, offset_y);
                 $(this).css({
-                    top: parseInt($(this).css('top')) + parseInt(offset_y||0),
-                    left: parseInt($(this).css('left')) + parseInt(offset_x)
+                    top: (offset_y > 0 ? "+=" : "-=") + Math.abs(offset_y),
+                    left: (offset_x > 0 ? "+=" : "-=") + Math.abs(offset_x)
                 });
+                console.debug($(this).position().top);
             }
         }
     });
