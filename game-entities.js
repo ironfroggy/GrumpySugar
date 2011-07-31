@@ -130,7 +130,9 @@ function Bomb(container, x, y) {
             });
     });
     if (this.element.collision('#actors,#player').length > 0) {
-        $(element).remove();
+        $(element).flip(true, function() {
+            $(element).remove();
+        });
     }
 }
 Bomb._count = 0;

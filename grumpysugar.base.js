@@ -208,8 +208,8 @@ $(document).ready(function(){
                 click_callback(e);
                 click_callback = null;
             } else {
-                var tile_x = parseInt(e.offsetX / 32);
-                var tile_y = parseInt(e.offsetY / 32);
+                var tile_x = parseInt(e.pageX / 32);
+                var tile_y = parseInt(e.pageY / 32);
                 $GS.player.walkTo(tile_x, tile_y);
             }
         });
